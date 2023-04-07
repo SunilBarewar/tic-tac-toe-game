@@ -10,8 +10,11 @@ export class View {
     this.$.newRoundBtn = this.#qs('[data-id="new-round-btn"]');
     this.$.modal = this.#qs('[data-id="modal"]');
     this.$.modalText = this.#qs('[data-id="modal-text"]');
-    this.$.modalBtn = document.querySelector('[data-id="modal-btn"]');
-    this.$.turn = document.querySelector('[data-id="turn"]');
+    this.$.modalBtn = this.#qs('[data-id="modal-btn"]');
+    this.$.turn = this.#qs('[data-id="turn"]');
+    this.$.p1Wins = this.#qs('[data-id="p1-wins"]');
+    this.$.p2Wins = this.#qs('[data-id="p2-wins"]');
+    this.$.ties = this.#qs('[data-id="ties"]');
 
     this.$$.squares = this.#qsAll('[data-id="square"]');
 
@@ -43,6 +46,12 @@ export class View {
    * DOM helper methods
    */
 
+  updateScoreBoard(p1Wins, p2Wins, ties) {
+    this.$.p1Wins.innerText = `${p1Wins} wins`;
+    this.$.p2Wins.innerText = `${p2Wins} wins`;
+    this.$.ties.innerText = `${ties} wins`;
+  }
+
   #toggleMenu() {
     this.$.menuItems.classList.toggle("hidden");
     this.$.menuItems.classList.toggle("border");
@@ -58,8 +67,21 @@ export class View {
     this.$.modalText.innerText = message;
   }
 
-  closeModal() {
+  closeAll() {
+    this.#closeModal();
+    this.#closeMenu();
+  }
+  #closeModal() {
     this.$.modal.classList.add("hidden");
+  }
+  #closeMenu() {
+    this.$.menuItems.classList.add("hidden");
+    this.$.menuBtn.classList.remove("border");
+
+    const icon = this.$.menuBtn.querySelector("i");
+
+    icon.classList.add("fa-chevron-down");
+    icon.classList.remove("fa-chevron-up");
   }
 
   handlePlayerMove(squareEl, player) {
@@ -96,6 +118,7 @@ export class View {
     return el;
   }
   #qsAll(selector) {
+    // elList => stores  all elements having given selector
     const elList = document.querySelectorAll(selector);
 
     if (!elList) throw new Error("could not find elements");
