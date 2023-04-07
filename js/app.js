@@ -15,43 +15,45 @@ const players = [
     colorClass: "yellow",
   },
 ];
-
+// MVC pattern
 function init() {
+  // "View"
   const view = new View();
-  const store = new Store("live-t3-storage-key", players);
+  // "Model"
+  const store = new Store("game-state-storage-key", players);
 
-  function initView() {
-    view.closeAll();
-    view.clearMoves();
-    view.setTurnIndicator(store.game.currentPlayer);
+  /**
+   * Listen for changes to the game state, re-render view when change occurs.
+   *
+   * The `statechange` event is a custom Event defined in the Store class
+   */
 
-    const { playerWithStats, ties } = store.stats;
-    view.updateScoreBoard(
-      playerWithStats[0].wins,
-      playerWithStats[1].wins,
-      ties
-    );
+  store.addEventListener("state-change", () => {
+    view.render(store.game, store.stats);
+  });
 
-    view.initializeMoves(store.game.moves);
-  }
+  /**
+   * When 2 players are playing from different browser tabs, listen for changes
+   */
 
   window.addEventListener("storage", () => {
     console.log("state changed from another tab");
-    initView();
+    view.render(store.game, store.stats);
   });
-  initView();
+
+  // When the HTML document first loads, render the view based on the current state.
+  view.render(store.game, store.stats);
 
   view.bindGameResetEvent((event) => {
     store.reset();
-    initView();
   });
 
   view.bindNewRoundEvent((event) => {
     store.newRound();
-    initView();
   });
 
   view.bindPlayerMoveEvent((square) => {
+    console.log(square);
     // Checking is Clicked Square is already occupied or not
     const existingMove = store.game.moves.find(
       (move) => move.squareId === +square.id
@@ -60,18 +62,8 @@ function init() {
     if (existingMove) {
       return;
     }
-    // place an icon of the current player in a square
-    view.handlePlayerMove(square, store.game.currentPlayer);
-
     // Advance to the next state by pushing a move to the moves array
     store.playerMove(+square.id);
-
-    const { status } = store.game;
-    if (status.isComplete) {
-      view.openModal(status.winner ? `${status.winner.name}, wins ` : "Tie!");
-    }
-    // Set the next player's turn inidicator
-    view.setTurnIndicator(store.game.currentPlayer);
   });
 }
 window.addEventListener("load", init);
