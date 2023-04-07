@@ -96,6 +96,16 @@ export class View {
       square.replaceChildren();
     });
   }
+
+  initializeMoves(moves) {
+    this.$$.squares.forEach((square) => {
+      const existingMove = moves.find((move) => move.squareId === +square.id);
+
+      if (existingMove) {
+        this.handlePlayerMove(square, existingMove.player);
+      }
+    });
+  }
   setTurnIndicator(player) {
     const icon = document.createElement("i");
     const label = document.createElement("p");

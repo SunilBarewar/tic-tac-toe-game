@@ -112,7 +112,8 @@ export default class Store {
   }
 
   #getState() {
-    return this.#state;
+    const item = window.localStorage.getItem(this.storageKey);
+    return item ? JSON.parse(item) : initialValue;
   }
 
   #saveState(stateOrFn) {
@@ -130,6 +131,6 @@ export default class Store {
       default:
         throw new Error("Invalid argument passed to saveState");
     }
-    this.#state = newState;
+    window.localStorage.setItem(this.storageKey, JSON.stringify(newState));
   }
 }
